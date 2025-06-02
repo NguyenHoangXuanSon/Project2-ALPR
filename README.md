@@ -25,9 +25,9 @@ https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0
 git clone https://github.com/ilbdculuv/VNLicensePlateRecognizer.git
 cd VNLicensePlateRecognizer
 
-
-2. Cài đặt các thư viện:
 ```bash
+2. Cài đặt các thư viện:
+
 pip install -r requirement.txt
 
 ```bash
