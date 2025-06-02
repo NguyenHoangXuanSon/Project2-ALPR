@@ -24,18 +24,18 @@ https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0
 ```bash
 git clone https://github.com/ilbdculuv/VNLicensePlateRecognizer.git
 cd VNLicensePlateRecognizer
-
 ```
 2. Cài đặt các thư viện:
-
-pip install -r requirement.txt
-
 ```bash
+pip install -r requirement.txt
+```
 3.Tải mô hình YOLOv11 (bạn có thể tự huấn luyện hoặc dùng file có sẵn) và đặt vào thư mục models/
 
 ## Cách chạy
-Chạy ứng dụng bằng Streamlit:
+Chạy ứng dụng bằng Streamlit
+```bash
 streamlit run app.py
+```
 Mở trình duyệt và truy cập địa chỉ được thông báo (mặc định http://localhost:8501) để sử dụng.
 
 ## Cấu trúc dự án
