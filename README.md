@@ -64,15 +64,10 @@ streamlit run app.py
 ## Cấu trúc dự án
 
 - `app.py`: File chính chạy chương trình, xử lý giao diện và nhận diện biển số xe.
-- 
 - `main.py`: Điều phối luồng xử lý và gọi các chức năng chính.
-- 
 - `util.py`: Chứa các hàm hỗ trợ xử lý ảnh và văn bản.
-- 
 - `visualize.py`: Module để vẽ biển số được nhận diện lên ảnh.
-- 
 - `models/`: Thư mục chứa các file mô hình YOLOv11 đã được huấn luyện.
-- 
 - `input/`: Chứa ảnh hoặc video đầu vào để nhận diện.
 - 
 - `output/`: Lưu kết quả sau khi xử lý.
