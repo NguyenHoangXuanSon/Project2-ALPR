@@ -1,15 +1,15 @@
 # Vietnamese License Plate Recognizer
 
-Repository này chứa mã nguồn cho đồ án môn học Project II (IT3930), với đề tài nhận diện biển số xe Việt Nam.
+This repository contains the source code for Project II (IT3930) course, with the topic of Vietnamese license plate recognition.
 
-## Tổng quan
+## Overview
 
-Dự án này phát triển một hệ thống nhận diện biển số xe ứng dụng công nghệ Deep Learning và Computer Vision. Hệ thống sử dụng:
-- Mô hình YOLOv11 để phát hiện xe và biển số trong ảnh
-- Thư viện EasyOCR để  ký tự từ vùng biển số đã được phát hiện.
-- Dataset [Vietnamese License Plate](https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0) từ Roboflow để huấn luyện mô hình.
-- Framework Streamlit để xây dựng giao diện web cho người dùng, cho phép dễ dàng tương tác và thử nghiệm hệ thống.
-## Kết quả mô hình
+This project develops a license plate recognition system using Deep Learning and Computer Vision techniques. The system utilizes:
+- YOLOv11 model for vehicle and license plate detection in images.
+- EasyOCR library for character recognition from the detected license plate regions.
+- Dataset [Vietnamese License Plate](https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0) from Roboflow for model training.
+- Streamlit framework to build a web-based user interface, making the system easy to interact with and test.
+## Model Performance
 
 | Model   | Precision | Recall    | mAP@0.5   | mAP@0.5:0.95 | Fitness   | Inference time (ms) |
 |---------|-----------|-----------|-----------|---------------|-----------|---------------------|
@@ -19,55 +19,51 @@ Dự án này phát triển một hệ thống nhận diện biển số xe ứn
 | YOLO11l | **0.9964**| 0.9845    | 0.9948    | 0.7446        | 0.7696    | 2.893               |
 | YOLO11x | 0.9916    | **0.9901**| **0.9948**| **0.7454**     | 0.7704    | 6.908               |
 
-Với quy mô dự án nhỏ và mục tiêu chạy trên máy cá nhân (local), phiên bản YOLOv11n đã được lựa chọn để cân bằng giữa hiệu năng và tốc độ xử lý.
+Given the small scale of the project and the goal of running locally on personal machines, the YOLOv11n version was selected to balance between performance and inference speed.
 
 
 ## Dataset
 
-Dữ liệu được sử dụng để huấn luyện mô hình phát hiện biển số là dataset **Vietnamese License Plate** trên Roboflow. Dataset này bao gồm các hình ảnh biển số xe máy và ô tô tại Việt Nam, được chụp từ nhiều góc độ và trong các điều kiện ánh sáng khác nhau, giúp mô hình học được tính đa dạng và tăng độ chính xác khi nhận diện trong thực tế.
+The model was trained using the Vietnamese License Plate dataset available on Roboflow. This dataset includes images of motorbike and car license plates in Vietnam, captured from various angles and lighting conditions, allowing the model to learn diverse patterns and improve real-world recognition accuracy.
 
-Link dataset: https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0
+Dataset link: https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0
 
-## Cài đặt
+## Installation
 
-Để triển khai và chạy dự án này trên local, thực hiện theo các bước sau:
+To run this project locally, follow these steps:
 
-1. Clone repository
+1. Clone the repository
 
 ```bash
 git clone https://github.com/NguyenHoangXuanSon/VN-license-plate-recognizer.git
 cd VN-license-plate-recognizer
 ```
-2. Cài đặt các thư viện
+2. Install the required libraries
    
 ```bash
 pip install -r requirement.txt
 ```
 
-3.Tải mô hình YOLOv11 (có thể tự huấn luyện hoặc dùng có sẵn) và đặt vào thư mục models/
+3. Download the trained YOLOv11 model (either train your own or use a pre-trained version) and place it inside the models/ directory.
 
-## Cách chạy
+## Running the App
 
-Sau khi hoàn tất cài đặt, có thể chạy chương trình sử dụng Streamlit
-
-Trong thư mục của dự án, mở Terminal và chạy lệnh sau
+Once installation is complete, you can run the Streamlit app with the following command:
 
 ```bash
 streamlit run app.py
 ```
-## Kết quả nhận diện biển số 
-
+## Sample Recognition Output
 
 ![](demo.png)
 
 
-## Cấu trúc dự án
-
-- `app.py`: File chính chạy chương trình, xử lý giao diện và nhận diện biển số xe.
-- `main.py`: Điều phối luồng xử lý và gọi các chức năng chính.
-- `util.py`: Chứa các hàm hỗ trợ xử lý ảnh và văn bản.
-- `visualize.py`: Module để vẽ biển số được nhận diện lên ảnh.
-- `models/`: Thư mục chứa các file mô hình YOLOv11 đã được huấn luyện.
-- `input/`: Chứa ảnh hoặc video đầu vào để nhận diện.
-- `output/`: Lưu kết quả sau khi xử lý.
-- `requirement.txt`: Danh sách thư viện và phiên bản cần thiết để chạy dự án.
+## Project Structure
+- app.py: Main application file, handles UI and license plate recognition.
+- main.py: Coordinates processing flow and invokes key functions.
+- util.py: Contains helper functions for image and text processing.
+- visualize.py: Module for drawing recognized plates on images.
+- models/: Contains trained YOLOv11 model files.
+- input/: Folder for input images or videos.
+- output/: Folder to save processed results.
+- requirement.txt: List of required libraries and their versions.
