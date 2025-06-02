@@ -1,6 +1,6 @@
 # Vietnamese License Plate Recognizer
 
-Repository này chứa mã nguồn cho đồ án môn học Project II (IT3930), tập trung vào việc nhận diện biển số xe Việt Nam.
+Repository này chứa mã nguồn cho đồ án môn học Project II (IT3930), với đề tài nhận diện biển số xe Việt Nam.
 
 ## Tổng quan
 
