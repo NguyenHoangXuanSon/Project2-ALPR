@@ -1,6 +1,6 @@
 # Vietnamese License Plate Recognizer - IT3930
 
-Đây là repository cho đồ án dành cho học phần Project II - IT3930 với đề tài nhận diện biển số xe Việt Nam
+Đây là repository dành cho đồ án của học phần Project II - IT3930 với đề tài nhận diện biển số xe Việt Nam
 
 ## Mô tả
 
@@ -25,9 +25,12 @@ https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0
 git clone https://github.com/ilbdculuv/VNLicensePlateRecognizer.git
 cd VNLicensePlateRecognizer
 
+
 2. Cài đặt các thư viện:
+```bash
 pip install -r requirement.txt
 
+```bash
 3.Tải mô hình YOLOv11 (bạn có thể tự huấn luyện hoặc dùng file có sẵn) và đặt vào thư mục models/
 
 ## Cách chạy
