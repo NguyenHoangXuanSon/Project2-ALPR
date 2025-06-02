@@ -55,7 +55,8 @@ Trong thư mục của dự án, mở Terminal và chạy lệnh sau
 ```bash
 streamlit run app.py
 ```
-Kết quả nhận diện biển số 
+## Kết quả nhận diện biển số 
+
 
 ![](demo.png)
 
