@@ -1,40 +1,46 @@
 import string
 import easyocr
 
-# Khởi tạo EasyOCR 
-reader = easyocr.Reader(['en'], gpu=False)
-allowlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # Chỉ cho phép chữ cái in hoa và số
+reader = easyocr.Reader(['en'], gpu=True)
+allowlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'  
 
-# Mapping dictionaries for character conversion
 dict_char_to_int = {'O': '0', 'I': '1', 'J': '3', 'A': '4', 'G': '6', 'S': '5'}
 dict_int_to_char = {'0': 'O', '1': 'I', '3': 'J', '4': 'A', '6': 'G', '5': 'S'}
 
 def write_csv(results, output_path):
-    with open(output_path, 'w') as f:
-        f.write('{},{},{},{},{},{},{}\n'.format('frame_nmr', 'car_id', 'car_bbox',
-                                                'license_plate_bbox', 'license_plate_bbox_score', 'license_number',
-                                                'license_number_score'))
-        for frame_nmr in results.keys():
-            for car_id in results[frame_nmr].keys():
-                if 'car' in results[frame_nmr][car_id].keys() and \
-                   'license_plate' in results[frame_nmr][car_id].keys() and \
-                   'text' in results[frame_nmr][car_id]['license_plate'].keys():
-                    f.write('{},{},{},{},{},{},{}\n'.format(frame_nmr,
-                                                            car_id,
-                                                            '[{} {} {} {}]'.format(
-                                                                results[frame_nmr][car_id]['car']['bbox'][0],
-                                                                results[frame_nmr][car_id]['car']['bbox'][1],
-                                                                results[frame_nmr][car_id]['car']['bbox'][2],
-                                                                results[frame_nmr][car_id]['car']['bbox'][3]),
-                                                            '[{} {} {} {}]'.format(
-                                                                results[frame_nmr][car_id]['license_plate']['bbox'][0],
-                                                                results[frame_nmr][car_id]['license_plate']['bbox'][1],
-                                                                results[frame_nmr][car_id]['license_plate']['bbox'][2],
-                                                                results[frame_nmr][car_id]['license_plate']['bbox'][3]),
-                                                            results[frame_nmr][car_id]['license_plate']['bbox_score'],
-                                                            results[frame_nmr][car_id]['license_plate']['text'],
-                                                            results[frame_nmr][car_id]['license_plate']['text_score']))
-        f.close()
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('{},{},{},{},{},{},{}\n'.format(
+            'image_name',
+            'car_id',
+            'car_bbox',
+            'license_plate_bbox',
+            'license_plate_bbox_score',
+            'license_number',
+            'license_number_score',
+        ))
+        for image_name in results.keys():
+            for car_id, plate_result in results[image_name].items():
+                if not isinstance(plate_result, dict):
+                    continue
+                if 'license_plate' in plate_result and 'text' in plate_result['license_plate']:
+                    bbox_lp = plate_result['license_plate']['bbox']
+                    car_info = plate_result.get('car')
+                    if isinstance(car_info, dict):
+                        bbox_car = car_info.get('bbox', [])
+                        bbox_car_str = '[{} {} {} {}]'.format(*[int(coord) for coord in bbox_car]) if bbox_car else '[]'
+                    else:
+                        bbox_car_str = '[]'
+
+                    f.write('{},{},{},{},{},{},{}\n'.format(
+                        image_name,
+                        car_id,
+                        bbox_car_str,
+                        '[{} {} {} {}]'.format(*[int(coord) for coord in bbox_lp]),
+                        plate_result['license_plate']['bbox_score'],
+                        plate_result['license_plate']['text'],
+                        plate_result['license_plate']['text_score'],
+                    ))
+
 
 def clean_text(text):
     cleaned = text.replace(' ', '').replace('-', '').replace('.', '')
@@ -104,12 +110,10 @@ def format_license(text):
 
 def read_license_plate(license_plate_crop):
 
-    # SỬA: Ưu tiên paragraph=False để lấy score
     detections = reader.readtext(license_plate_crop, allowlist=allowlist, paragraph=False, text_threshold=0.5)
     print(f"Kết quả từ EasyOCR (paragraph=False): {detections}")
 
     if not detections:
-        # Thử lại với paragraph=True
         detections = reader.readtext(license_plate_crop, allowlist=allowlist, paragraph=True, text_threshold=0.5)
         print(f"Kết quả từ EasyOCR (paragraph=True): {detections}")
 
@@ -117,7 +121,6 @@ def read_license_plate(license_plate_crop):
         print("EasyOCR không đọc được văn bản từ biển số.")
         return None, None
 
-    # Xử lý kết quả
     combined_text = ''
     combined_score = 0
 
@@ -144,36 +147,29 @@ def read_license_plate(license_plate_crop):
     combined_text = clean_text(combined_text)
     print(f"Biển số sau khi ghép và làm sạch: {combined_text}, Độ tin cậy: {combined_score}")
 
-    if license_complies_format(combined_text):
-        formatted_text = format_license(combined_text)
-        print(f"Biển số sau khi sửa: {formatted_text}")
+    formatted_text = format_license(combined_text)
+    print(f"Biển số sau khi sửa: {formatted_text}")
+
+    if license_complies_format(formatted_text):
         return formatted_text, combined_score
     else:
-        print(f"Văn bản '{combined_text}' không thỏa mãn định dạng 8 hoặc 9 ký tự.")
+        print(f"Văn bản '{formatted_text}' không thỏa mãn định dạng 8 hoặc 9 ký tự.")
         return None, None
 
 def get_car(license_plate, vehicle_track_ids):
     x1, y1, x2, y2, score, class_id = license_plate
 
-    foundIt = False
-    for j in range(len(vehicle_track_ids)):
-        xcar1, ycar1, xcar2, ycar2, car_id = vehicle_track_ids[j]
-
+    for j, (vx1, vy1, vx2, vy2, car_id) in enumerate(vehicle_track_ids):
         expansion_factor = 0.2
-        width = xcar2 - xcar1
-        height = ycar2 - ycar1
-        xcar1_exp = xcar1 - width * expansion_factor
-        ycar1_exp = ycar1 - height * expansion_factor
-        xcar2_exp = xcar2 + width * expansion_factor
-        ycar2_exp = ycar2 + height * expansion_factor
+        width = vx2 - vx1
+        height = vy2 - vy1
+        vx1_exp = vx1 - width * expansion_factor
+        vy1_exp = vy1 - height * expansion_factor
+        vx2_exp = vx2 + width * expansion_factor
+        vy2_exp = vy2 + height * expansion_factor
 
-        if (x1 < xcar2_exp and x2 > xcar1_exp and y1 < ycar2_exp and y2 > ycar1_exp):
-            car_indx = j
-            foundIt = True
-            break
-
-    if foundIt:
-        print(f"Gán thành công: Car ID {vehicle_track_ids[car_indx][-1]}, Vùng xe mở rộng: [x1={xcar1_exp}, y1={ycar1_exp}, x2={xcar2_exp}, y2={ycar2_exp}]")
-        return vehicle_track_ids[car_indx]
+        if (x1 < vx2_exp and x2 > vx1_exp and y1 < vy2_exp and y2 > vy1_exp):
+            print(f"Gán thành công: Car ID {car_id}, Vùng xe mở rộng: [x1={vx1_exp}, y1={vy1_exp}, x2={vx2_exp}, y2={vy2_exp}]")
+            return vx1, vy1, vx2, vy2, car_id
 
     return -1, -1, -1, -1, -1

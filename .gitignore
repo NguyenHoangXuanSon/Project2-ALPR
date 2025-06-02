@@ -1,4 +1,2 @@
 *.pt
-input_video/*.mp4
-processed_plates/
-output_video/
+debug_processed_plates/

@@ -1,0 +1,2 @@
+image_name,car_id,car_bbox,license_plate_bbox,license_plate_bbox_score,license_number,license_number_score
+img2,unknown,[],[156 87 851 495],0.6627073287963867,30G49344,0.6618389117614091
