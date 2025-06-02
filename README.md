@@ -19,7 +19,7 @@ Dự án này phát triển một hệ thống nhận diện biển số xe ứn
 | YOLO11l | **0.9964**| 0.9845    | 0.9948    | 0.7446        | 0.7696    | 2.893               |
 | YOLO11x | 0.9916    | **0.9901**| **0.9948**| **0.7454**     | 0.7704    | 6.908               |
 
-Với quy mô dự án nhỏ và mục tiêu chạy trên máy cá nhân(local), phiên bản YOLOv11n đã được lựa chọn để cân bằng giữa hiệu năng và tốc độ xử lý.
+Với quy mô dự án nhỏ và mục tiêu chạy trên máy cá nhân (local), phiên bản YOLOv11n đã được lựa chọn để cân bằng giữa hiệu năng và tốc độ xử lý.
 
 
 ## Dataset
