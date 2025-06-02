@@ -1,2 +1,3 @@
 *.pt
 debug_processed_plates/
+result_file.csv/
