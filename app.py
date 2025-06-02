@@ -8,14 +8,13 @@ import base64
 from io import BytesIO
 from PIL import Image
 import pandas as pd
-from visualize import visualize_on_image  # import hàm visualize đã sửa
+from visualize import visualize_on_image 
 
-# ========== MODEL KHỞI TẠO ==========
-coco_model = YOLO('yolo11n.pt')  # Model detect xe
-license_plate_model = YOLO('./models/best_yolo11n.pt')  # Model detect biển số
+coco_model = YOLO('yolo11n.pt')  
+license_plate_model = YOLO('./models/best_yolo11n.pt')  
 reader = easyocr.Reader(['en'], gpu=False)
 
-vehicles = [2, 3, 5, 7]  # Class IDs cho các loại xe
+vehicles = [2, 3, 5, 7]  
 
 def get_car(license_plate, vehicle_boxes):
     x1, y1, x2, y2, score, class_id = license_plate
@@ -43,7 +42,6 @@ def image_to_base64(img):
     img_str = base64.b64encode(buff.getvalue()).decode("utf-8")
     return img_str
 
-# ========== GIAO DIỆN ==========
 st.set_page_config(page_title="Vietnamese Licence Plate Recognizer", layout="wide")
 st.markdown("<h1 style='color:#3d7bb6 ; font-size:60px;'>Vietnamese Licence Plate Recognizer</h1>", unsafe_allow_html=True)
 
@@ -55,7 +53,6 @@ if uploaded_file:
     image_path = tfile.name
     image = cv2.imread(image_path)
 
-    # === Detect vehicles ===
     results = coco_model(image)[0]
     vehicle_boxes = []
     for det in results.boxes.data.tolist():
@@ -63,12 +60,10 @@ if uploaded_file:
         if int(class_id) in vehicles:
             vehicle_boxes.append([x1, y1, x2, y2, len(vehicle_boxes)])
 
-    # === Detect license plates ===
     plates = license_plate_model(image)[0].boxes.data.tolist()
 
     result_rows = []
 
-    # === Vẽ kết quả lên ảnh gốc
     if plates:
         result_df = pd.DataFrame()
         rows = []
@@ -94,10 +89,8 @@ if uploaded_file:
     else:
         vis_img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    # === Giao diện 2 cột ===
     left_col, right_col = st.columns([1,1])
 
-    # ===== LEFT: Ảnh gốc đã vẽ kết quả, có viền =====
     with left_col:
         img_b64 = image_to_base64(vis_img_rgb)
         st.markdown(
@@ -109,7 +102,6 @@ if uploaded_file:
             unsafe_allow_html=True
         )
 
-    # ===== RIGHT: Thông tin chi tiết + OCR =====
     with right_col:
         if not plates:
             st.warning("Không phát hiện biển số.")
