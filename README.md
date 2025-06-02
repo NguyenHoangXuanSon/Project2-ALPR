@@ -32,13 +32,13 @@ Link dataset: https://universe.roboflow.com/school-fuhih/vietnamese-license-plat
 
 Để triển khai và chạy dự án này trên local, thực hiện theo các bước sau:
 
-1. Clone repository:
+1. Clone repository
 
 ```bash
 git clone https://github.com/NguyenHoangXuanSon/VN-license-plate-recognizer.git
 cd VN-license-plate-recognizer
 ```
-2. Cài đặt các thư viện:
+2. Cài đặt các thư viện
    
 ```bash
 pip install -r requirement.txt
@@ -55,8 +55,9 @@ Trong thư mục của dự án, mở Terminal và chạy lệnh sau
 ```bash
 streamlit run app.py
 ```
+Kết quả nhận diện biển số 
 
-![Kết quả nhận diện biển số](demo.png)
+![](demo.png)
 
 
 ## Cấu trúc dự án
