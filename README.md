@@ -40,8 +40,11 @@ Mở trình duyệt và truy cập địa chỉ được thông báo (mặc đ�
 
 ## Cấu trúc dự án
 app.py: file chính, giao diện và xử lý chính.
+
 visualize.py: module vẽ khung và biển số lên ảnh/video.
+
 models/: chứa các file mô hình YOLOv11 đã huấn luyện.
+
 requirement.txt: danh sách thư viện cần thiết.
 
 ## Ghi chú
