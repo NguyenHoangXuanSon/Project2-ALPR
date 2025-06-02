@@ -78,9 +78,3 @@ streamlit run app.py
 - `output/`: Lưu kết quả sau khi xử lý.
 - 
 - `requirement.txt`: Danh sách thư viện và phiên bản cần thiết để chạy dự án.
-
-
-## Ghi chú
-Dự án là một phần đồ án trong học phần IT3930,
-Đảm bảo các thư viện như ultralytics, easyocr, opencv-python-headless, streamlit được cài đúng phiên bản trong requirement.txt.
-Dataset và mô hình có thể được tùy chỉnh theo nhu cầu.
