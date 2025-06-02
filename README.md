@@ -51,7 +51,7 @@ Trong thư mục của dự án, mở Terminal và chạy lệnh sau
 ```bash
 streamlit run app.py
 ```
-Mở trình duyệt và truy cập địa chỉ được thông báo (mặc định http://localhost:8501) để sử dụng.
+
 ![Kết quả nhận diện biển số](demo.png)
 
 
