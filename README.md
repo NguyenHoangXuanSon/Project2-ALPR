@@ -69,7 +69,5 @@ streamlit run app.py
 - `visualize.py`: Module để vẽ biển số được nhận diện lên ảnh.
 - `models/`: Thư mục chứa các file mô hình YOLOv11 đã được huấn luyện.
 - `input/`: Chứa ảnh hoặc video đầu vào để nhận diện.
-- 
 - `output/`: Lưu kết quả sau khi xử lý.
-- 
 - `requirement.txt`: Danh sách thư viện và phiên bản cần thiết để chạy dự án.
