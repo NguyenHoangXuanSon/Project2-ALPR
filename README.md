@@ -39,15 +39,19 @@ git clone https://github.com/NguyenHoangXuanSon/VN-license-plate-recognizer.git
 cd VN-license-plate-recognizer
 ```
 2. Cài đặt các thư viện:
+   
 ```bash
 pip install -r requirement.txt
 ```
-3.Tải mô hình YOLOv11 (có thể tự huấn luyện hoặc dùng  có sẵn) và đặt vào thư mục models/
+
+3.Tải mô hình YOLOv11 (có thể tự huấn luyện hoặc dùng có sẵn) và đặt vào thư mục models/
 
 ## Cách chạy
 
-Sau khi hoàn tất cài đặt, có thể chạy chương trình sử dụng Streamlit:
+Sau khi hoàn tất cài đặt, có thể chạy chương trình sử dụng Streamlit
+
 Trong thư mục của dự án, mở Terminal và chạy lệnh sau
+
 ```bash
 streamlit run app.py
 ```
