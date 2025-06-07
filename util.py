@@ -1,7 +1,7 @@
 import string
-import easyocr
+from paddleocr import PaddleOCR
 
-reader = easyocr.Reader(['en'], gpu=True)
+ocr = PaddleOCR(use_textline_orientation=True, lang='en')
 allowlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'  
 
 dict_char_to_int = {'O': '0', 'I': '1', 'J': '3', 'A': '4', 'G': '6', 'S': '5'}
@@ -109,43 +109,32 @@ def format_license(text):
     return license_plate_
 
 def read_license_plate(license_plate_crop):
+    results = ocr.predict(license_plate_crop)
+    print(f"Kết quả từ OCR: {results}")
 
-    detections = reader.readtext(license_plate_crop, allowlist=allowlist, paragraph=False, text_threshold=0.5)
-    print(f"Kết quả từ EasyOCR (paragraph=False): {detections}")
-
-    if not detections:
-        detections = reader.readtext(license_plate_crop, allowlist=allowlist, paragraph=True, text_threshold=0.5)
-        print(f"Kết quả từ EasyOCR (paragraph=True): {detections}")
-
-    if not detections:
-        print("EasyOCR không đọc được văn bản từ biển số.")
+    if not results or len(results) == 0:
+        print("OCR không đọc được văn bản từ biển số.")
         return None, None
 
-    combined_text = ''
-    combined_score = 0
+    # OCR trả về list chứa 1 dict chi tiết
+    ocr_result = results[0]
 
-    for detection in detections:
-        if isinstance(detection, (list, tuple)):
-            if len(detection) == 2:  
-                bbox, text = detection
-                score = 0  
-            elif len(detection) == 3: 
-                bbox, text, score = detection
-            else:
-                print(f"Cảnh báo: Định dạng không mong đợi từ EasyOCR: {detection}")
-                continue
-        else:
-            print(f"Cảnh báo: Định dạng không mong đợi từ EasyOCR: {detection}")
-            continue
+    # Lấy list text và score từ key 'rec_texts' và 'rec_scores'
+    rec_texts = ocr_result.get('rec_texts', [])
+    rec_scores = ocr_result.get('rec_scores', [])
 
-        raw_text = text.upper()
-        print(f"Biển số trước khi sửa (đoạn): {raw_text}, Độ tin cậy: {score}")
-        combined_text += raw_text
-        combined_score = max(combined_score, score)
+    if not rec_texts:
+        print("Không tìm thấy văn bản nhận dạng trong kết quả OCR.")
+        return None, None
 
-    # Làm sạch văn bản
+    # Nối các text lại nếu có nhiều đoạn
+    combined_text = ''.join(rec_texts).upper()
+    combined_score = max(rec_scores) if rec_scores else 0
+
+    print(f"Biển số trước khi làm sạch: {combined_text}, Độ tin cậy: {combined_score}")
+
     combined_text = clean_text(combined_text)
-    print(f"Biển số sau khi ghép và làm sạch: {combined_text}, Độ tin cậy: {combined_score}")
+    print(f"Biển số sau khi làm sạch: {combined_text}")
 
     formatted_text = format_license(combined_text)
     print(f"Biển số sau khi sửa: {formatted_text}")
@@ -155,6 +144,7 @@ def read_license_plate(license_plate_crop):
     else:
         print(f"Văn bản '{formatted_text}' không thỏa mãn định dạng 8 hoặc 9 ký tự.")
         return None, None
+
 
 def get_car(license_plate, vehicle_track_ids):
     x1, y1, x2, y2, score, class_id = license_plate

@@ -1,39 +1,22 @@
+import warnings
+warnings.filterwarnings("ignore")
 import streamlit as st
 import cv2
 import numpy as np
 import tempfile
 from ultralytics import YOLO
-import easyocr
+from paddleocr import PaddleOCR
 import base64
 from io import BytesIO
 from PIL import Image
 import pandas as pd
 from visualize import visualize_on_image 
+from util import read_license_plate, get_car
 
 coco_model = YOLO('yolo11n.pt')  
 license_plate_model = YOLO('./models/best_yolo11n.pt')  
-reader = easyocr.Reader(['en'], gpu=False)
 
 vehicles = [2, 3, 5, 7]  
-
-def get_car(license_plate, vehicle_boxes):
-    x1, y1, x2, y2, score, class_id = license_plate
-    for i, (vx1, vy1, vx2, vy2, car_id) in enumerate(vehicle_boxes):
-        expand = 0.2
-        w = vx2 - vx1
-        h = vy2 - vy1
-        if (x1 < vx2 + w * expand and x2 > vx1 - w * expand and
-            y1 < vy2 + h * expand and y2 > vy1 - h * expand):
-            return vx1, vy1, vx2, vy2, car_id
-    return -1, -1, -1, -1, -1
-
-def read_license_plate(image):
-    detections = reader.readtext(image, allowlist='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', paragraph=False)
-    if not detections:
-        return None, None
-    text = ''.join([d[1].upper() for d in detections])
-    score = max([d[2] for d in detections])
-    return text, score
 
 def image_to_base64(img):
     pil_img = Image.fromarray(img)
@@ -62,10 +45,10 @@ if uploaded_file:
 
     plates = license_plate_model(image)[0].boxes.data.tolist()
 
-    result_rows = []
+    # Lưu kết quả OCR từng biển
+    result_df = pd.DataFrame()
 
     if plates:
-        result_df = pd.DataFrame()
         rows = []
         for lp in plates:
             x1, y1, x2, y2, score, class_id = lp
@@ -75,14 +58,18 @@ if uploaded_file:
             if plate_crop.size == 0:
                 continue
             plate_crop_rgb = cv2.cvtColor(plate_crop, cv2.COLOR_BGR2RGB)
+
+            # Gọi OCR 1 lần, lưu kết quả
             text, conf = read_license_plate(plate_crop_rgb)
 
             rows.append({
                 'car_id': car_id,
                 'license_plate_bbox': f"[{int(x1)} {int(y1)} {int(x2)} {int(y2)}]",
                 'license_number': text if text else '',
-                'license_number_score': conf if conf else 0.0
+                'license_number_score': conf if conf else 0.0,
+                'plate_crop_rgb': plate_crop_rgb  # lưu ảnh để hiển thị
             })
+
         result_df = pd.DataFrame(rows)
         vis_img = visualize_on_image(image.copy(), result_df)
         vis_img_rgb = cv2.cvtColor(vis_img, cv2.COLOR_BGR2RGB)
@@ -103,30 +90,19 @@ if uploaded_file:
         )
 
     with right_col:
-        if not plates:
+        if result_df.empty:
             st.warning("Không phát hiện biển số.")
         else:
-            for lp in plates:
-                x1, y1, x2, y2, score, class_id = lp
-                xcar1, ycar1, xcar2, ycar2, car_id = get_car(lp, vehicle_boxes)
+            for idx, row in result_df.iterrows():
+                st.image(row['plate_crop_rgb'], caption="Biển số đã cắt", width=200)
 
-                plate_crop = image[int(y1):int(y2), int(x1):int(x2)]
-                if plate_crop.size == 0:
-                    st.error("Không crop được biển số.")
-                    continue
+                st.markdown(f"<h3 style='color:#C70039;'>Car ID - {row['car_id'] if row['car_id'] != -1 else 'Không xác định'}</h3>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px;'><b><span style='color:#C70039;'>Tọa độ biển số</span>: <span style='color:#454748;'>{row['license_plate_bbox']}</span></b></p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px;'><b><span style='color:#C70039;'>Độ chính xác bbox</span>: <span style='color:#454748;'>{float(plates[idx][4]):.2%}</span></b></p>", unsafe_allow_html=True)
 
-                plate_crop_rgb = cv2.cvtColor(plate_crop, cv2.COLOR_BGR2RGB)
-                text, conf = read_license_plate(plate_crop_rgb)
-
-                st.image(plate_crop_rgb, caption="Biển số đã cắt", width=200)
-
-                st.markdown(f"<h3 style='color:#C70039;'>Car ID - {car_id if car_id != -1 else 'Không xác định'}</h3>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size:18px;'><b><span style='color:#C70039;'>Tọa độ biển số</span>: <span style='color:#454748;'>[{int(x1)}, {int(y1)}, {int(x2)}, {int(y2)}]</span></b></p>", unsafe_allow_html=True)
-                st.markdown(f"<p style='font-size:18px;'><b><span style='color:#C70039;'>Độ chính xác bbox</span>: <span style='color:#454748;'>{score:.2%}</span></b></p>", unsafe_allow_html=True)
-
-                if text:
-                    st.markdown(f"<p style='font-size:18px;'><b><span style='color:#C70039;'>Biển số</span>: <span style='color:#454748;'>{text}</span></b></p>", unsafe_allow_html=True)
-                    st.markdown(f"<p style='font-size:18px;'><b><span style='color:#C70039;'>Độ tin cậy OCR</span>: <span style='color:#454748;'>{conf:.2%}</span></b></p>", unsafe_allow_html=True)
+                if row['license_number']:
+                    st.markdown(f"<p style='font-size:18px;'><b><span style='color:#C70039;'>Biển số</span>: <span style='color:#454748;'>{row['license_number']}</span></b></p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='font-size:18px;'><b><span style='color:#C70039;'>Độ tin cậy OCR</span>: <span style='color:#454748;'>{row['license_number_score']:.2%}</span></b></p>", unsafe_allow_html=True)
                 else:
                     st.error("Không đọc được biển số.")
 
