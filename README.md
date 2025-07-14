@@ -6,7 +6,7 @@ This repository contains the source code for Project II (IT3930) course, with th
 
 This project develops a license plate recognition system using Deep Learning and Computer Vision techniques. The system utilizes:
 - YOLOv11 model for vehicle and license plate detection in images.
-- EasyOCR library for character recognition from the detected license plate regions.
+- PaddleOCR library for character recognition from the detected license plate regions.
 - Dataset [Vietnamese License Plate](https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0) from Roboflow for model training.
 - Streamlit framework to build a web-based user interface, making the system easy to interact with and test.
 ## Model Performance
